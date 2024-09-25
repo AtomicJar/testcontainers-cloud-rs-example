@@ -1,0 +1,10 @@
+[package]
+name = "testcontainers-cloud-rs-example"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+sqlx = {version = "0.8.2", features = ["postgres", "runtime-tokio"]}
+testcontainers-modules = { version = "0.11.0", features = ["postgres", "properties-config"]}
+tokio = { version = "1", features = ["macros", "fs", "rt-multi-thread"] }
+
