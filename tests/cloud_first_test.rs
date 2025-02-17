@@ -11,21 +11,27 @@ async fn testcontainers_cloud_docker_engine() -> Result<(), Box<dyn std::error::
     let client = docker_client_instance().await?;
     let info = client.info().await?;
 
+    let contains_cloud_label = info
+        .labels
+        .as_ref()
+        .map(|labels| labels.iter().any(|label| label.contains("cloud.docker.run.version")))
+        .unwrap_or(false);
+
     let contains_cloud =
         matches!(info.server_version.as_ref(), Some(v) if v.contains("testcontainerscloud"));
     let contains_desktop =
         matches!(info.server_version.as_ref(), Some(v) if v.contains("Testcontainers Desktop"));
 
-    if !(contains_cloud || contains_desktop) {
+    if !(contains_cloud || contains_desktop || contains_cloud_label) {
         Err(TestcontainersDesktopNotFound)?
     }
 
     let runtime = Some("Testcontainers Cloud")
-        .filter(|_| contains_cloud)
+        .filter(|_| contains_cloud || contains_cloud_label)
         .or(info.operating_system.as_deref())
         .unwrap_or("unknown");
     let runtime = if contains_desktop {
-        format!("{runtime} via Testcontainers Desktop app")
+        format!("{runtime} via Testcontainers Desktop")
     } else {
         runtime.to_string()
     };
